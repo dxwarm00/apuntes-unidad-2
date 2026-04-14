@@ -1,1047 +1,1015 @@
 # 🖥️ Graficación por Computadora
- 
-> Apuntes de la materia de Graficación — Ingeniería en Sistemas Computacionales
- 
+
+> Este repositorio integra teoría matemática, programación y aplicación práctica en Blender, permitiendo comprender la graficación 2D desde un enfoque visual y computacional.
+
 ---
- 
+
 ## 📑 Índice General
- 
+
 - [Unidad 1 — Introducción a la Graficación](#) *(ver entrega anterior)*
 - [**Unidad 2 — Graficación 2D**](#unidad-2-graficación-2d)
   - [2.1 Transformaciones Bidimensionales](#21-transformaciones-bidimensionales)
     - [2.1.1 Traslación](#211-traslación)
     - [2.1.2 Escalamiento](#212-escalamiento)
     - [2.1.3 Rotación](#213-rotación)
-    - [2.1.4 Sesgado (Shearing)](#214-sesgado-shearing)
+    - [2.1.4 Sesgado](#214-sesgado-shearing)
   - [2.2 Representación Matricial de las Transformaciones 2D](#22-representación-matricial-de-las-transformaciones-2d)
-    - [Ejercicio: Control con Teclas de Dirección](#-ejercicio-control-con-teclas-de-dirección)
+    - [Ejercicio: Control con Teclas de Dirección en Blender](#-ejercicio-control-con-teclas-de-dirección-en-blender)
   - [2.3 Trazo de Líneas Curvas](#23-trazo-de-líneas-curvas)
     - [2.3.1 Curvas de Bézier](#231-curvas-de-bézier)
-    - [2.3.2 B-Spline](#232-b-spline)
-    - [Ejercicio: Animación con Curvas](#-ejercicio-animación-con-curvas)
+    - [2.3.2 B-Spline (NURBS en Blender)](#232-b-spline-nurbs-en-blender)
+    - [Ejercicio: Animación con Curvas en Blender](#-ejercicio-animación-con-curvas-en-blender)
   - [2.4 Fractales](#24-fractales)
   - [2.5 Uso y Creación de Fuentes de Texto](#25-uso-y-creación-de-fuentes-de-texto)
 - [Referencias](#referencias)
- 
+
 ---
- 
+
 # Unidad 2: Graficación 2D
- 
-La graficación 2D es la base de cualquier sistema gráfico por computadora. Comprende el conjunto de técnicas matemáticas y algorítmicas que permiten representar, transformar y manipular figuras en un plano bidimensional. En esta unidad se estudian las transformaciones geométricas, la representación matricial, el trazo de curvas, los fractales y el manejo de tipografía.
- 
+
+La graficación 2D comprende el conjunto de técnicas matemáticas que permiten representar, transformar y manipular figuras en un plano bidimensional. En Blender, aunque es un software primariamente 3D, existe un entorno dedicado al trabajo 2D llamado **Grease Pencil**, y todas las transformaciones 2D son la base de cualquier operación sobre objetos. Esta unidad estudia dichas transformaciones, las curvas, los fractales y la tipografía, siempre desde la perspectiva de Blender.
+
 ---
- 
+
 ## 2.1 Transformaciones Bidimensionales
- 
-Las **transformaciones geométricas** son operaciones matemáticas que modifican la posición, el tamaño o la orientación de un objeto en el plano 2D sin alterar su forma intrínseca (en el caso de transformaciones afines). Son fundamentales en animación, diseño gráfico, videojuegos y simulación.
- 
+
+En Blender, las transformaciones se aplican sobre objetos en el **espacio 3D**, pero cuando se trabaja en modo **Grease Pencil** o se restringe el movimiento a los ejes X e Y (`G → X` o `G → Y`), se obtiene un comportamiento puramente 2D.
+
+Toda transformación parte de las propiedades del objeto visibles en el panel lateral `N`:
+
+```
+Transform
+  Location:  X  Y  Z
+  Rotation:  X  Y  Z
+  Scale:     X  Y  Z
+```
+
 Las transformaciones elementales en 2D son:
- 
-| Transformación | Modifica         | Preserva          |
-|----------------|------------------|-------------------|
-| Traslación     | Posición         | Forma y tamaño    |
-| Escalamiento   | Tamaño           | Ángulos (uniforme)|
-| Rotación       | Orientación      | Forma y tamaño    |
-| Sesgado        | Ángulos internos | Área (parcial)    |
- 
+
+| Transformación | Atajo en Blender | Panel N          |
+|----------------|-----------------|------------------|
+| Traslación     | `G`             | Location X, Y    |
+| Escalamiento   | `S`             | Scale X, Y       |
+| Rotación       | `R`             | Rotation Z       |
+| Sesgado        | `Ctrl + Alt + S`| (solo en Edit Mode)|
+
 ---
- 
+
 ### 2.1.1 Traslación
- 
-La **traslación** desplaza un punto (o un conjunto de puntos) desde una posición a otra sumando valores constantes a sus coordenadas.
- 
+
+La **traslación** desplaza un objeto sumando un vector de desplazamiento a su posición actual.
+
 **Definición matemática:**
- 
-Dado un punto $P = (x, y)$ y un vector de traslación $(t_x, t_y)$, el punto trasladado $P' = (x', y')$ se obtiene mediante:
- 
-$$x' = x + t_x$$
-$$y' = y + t_y$$
- 
-O de forma vectorial:
- 
-$$P' = P + T \quad \text{donde } T = (t_x, t_y)$$
- 
-**Ejemplo:**
- 
-Si un punto está en $(3, 4)$ y se aplica una traslación de $(+5, -2)$:
- 
-$$x' = 3 + 5 = 8 \qquad y' = 4 + (-2) = 2$$
- 
-El punto se mueve a $(8, 2)$.
- 
-**Propiedades:**
-- Es una transformación **rígida** (no deforma el objeto).
-- Es **conmutativa**: trasladar por $T_1$ y luego por $T_2$ es igual a trasladar por $T_1 + T_2$.
-- Se puede combinar con otras transformaciones usando **coordenadas homogéneas** (ver sección 2.2).
- 
-**Representación gráfica:**
- 
+
+Dado un punto $P = (x, y)$ y un vector de traslación $(t_x, t_y)$:
+
+$$x' = x + t_x \qquad y' = y + t_y$$
+
+**En Blender — Interfaz gráfica:**
+
+1. Seleccionar el objeto.
+2. Presionar `G` para activar grab (traslación).
+3. Presionar `X` o `Y` para restringir al eje deseado.
+4. Escribir el valor numérico (ej. `G → Y → 3 → Enter` mueve 3 unidades en Y).
+5. Confirmar con `Enter` o cancelar con `Esc`.
+
+**En Blender — Python scripting:**
+
+```python
+import bpy
+
+# Seleccionar el objeto activo
+obj = bpy.context.active_object
+
+# Trasladar: mover 3 unidades en X y -2 en Y
+obj.location.x += 3
+obj.location.y -= 2
+
+# También se puede asignar directamente
+obj.location = (5.0, 2.0, 0.0)  # X, Y, Z
 ```
-  y
-  │       P'(8,2)
-  │    ↗
-  │  P(3,4)
-  └──────── x
-```
- 
-> 💡 **Aplicación:** Mover sprites en videojuegos, animar objetos a lo largo de una trayectoria.
- 
+
+> 💡 En Blender la coordenada Z siempre existe. Para trabajo 2D puro se fija en `Z = 0`.
+
 ---
- 
+
 ### 2.1.2 Escalamiento
- 
-El **escalamiento** modifica el tamaño de un objeto multiplicando sus coordenadas por factores de escala. Puede ser **uniforme** (mismo factor en $x$ y $y$) o **no uniforme** (factores distintos).
- 
+
+El **escalamiento** modifica el tamaño de un objeto multiplicando sus dimensiones por un factor.
+
 **Definición matemática:**
- 
-Dado un punto $P = (x, y)$ y factores de escala $s_x$ y $s_y$:
- 
-$$x' = x \cdot s_x$$
-$$y' = y \cdot s_y$$
- 
-**Casos particulares:**
- 
-| Condición        | Efecto                                  |
-|------------------|-----------------------------------------|
-| $s_x = s_y > 1$  | Ampliación uniforme                     |
-| $0 < s_x = s_y < 1$ | Reducción uniforme                   |
-| $s_x \neq s_y$   | Deformación (escalamiento no uniforme)  |
-| $s_x$ o $s_y < 0$| Reflexión (espejo)                      |
-| $s_x = s_y = 1$  | Sin cambio                              |
- 
-**Escalamiento respecto a un punto fijo $(p_x, p_y)$:**
- 
-Cuando se escala respecto al origen, el objeto se desplaza también. Para escalar respecto a un punto arbitrario:
- 
-1. Trasladar el punto fijo al origen: $x'' = x - p_x,\ y'' = y - p_y$
-2. Aplicar el escalamiento: $x''' = x'' \cdot s_x,\ y''' = y'' \cdot s_y$
-3. Trasladar de regreso: $x' = x''' + p_x,\ y' = y''' + p_y$
- 
-> 💡 **Aplicación:** Zoom en interfaces gráficas, ajuste de imágenes, efectos de "grow/shrink" en animaciones.
- 
+
+Dado un punto $P = (x, y)$ y factores $s_x$, $s_y$:
+
+$$x' = x \cdot s_x \qquad y' = y \cdot s_y$$
+
+**Casos importantes:**
+
+| Condición            | Efecto                          |
+|----------------------|---------------------------------|
+| $s_x = s_y > 1$      | Ampliación uniforme             |
+| $0 < s_x = s_y < 1$  | Reducción uniforme              |
+| $s_x \neq s_y$       | Deformación (estiramiento)      |
+| $s_x$ o $s_y < 0$    | Reflexión (espejo)              |
+
+**En Blender — Interfaz gráfica:**
+
+- `S` → Escalamiento uniforme
+- `S → X → 2 → Enter` → Duplicar tamaño solo en X
+- `S → Y → 0.5 → Enter` → Reducir a la mitad en Y
+- Para espejo: `S → X → -1 → Enter`
+
+**En Blender — Python scripting:**
+
+```python
+import bpy
+
+obj = bpy.context.active_object
+
+# Escalar uniformemente al doble
+obj.scale = (2.0, 2.0, 1.0)
+
+# Escalar solo en X (deformación)
+obj.scale.x = 3.0
+
+# Aplicar la escala (bake transform)
+bpy.ops.object.transform_apply(scale=True)
+```
+
+> ⚠️ En Blender es importante usar **Apply Scale** (`Ctrl + A → Scale`) después de escalar, para que los valores internos de la malla reflejen la transformación real.
+
 ---
- 
+
 ### 2.1.3 Rotación
- 
-La **rotación** gira un objeto un ángulo $\theta$ alrededor de un punto (usualmente el origen o el centro del objeto).
- 
+
+La **rotación** gira un objeto un ángulo $\theta$ alrededor de un punto de pivote.
+
 **Definición matemática (respecto al origen):**
- 
-$$x' = x \cos\theta - y \sin\theta$$
-$$y' = x \sin\theta + y \cos\theta$$
- 
-Donde $\theta$ es positivo en sentido **antihorario** (convención matemática estándar).
- 
-**Demostración intuitiva:**
- 
-Si un punto $P$ está a distancia $r$ del origen, en ángulo $\phi$:
-- $x = r\cos\phi$, $y = r\sin\phi$
- 
-Después de rotar $\theta$:
-- $x' = r\cos(\phi + \theta) = r\cos\phi\cos\theta - r\sin\phi\sin\theta = x\cos\theta - y\sin\theta$ ✓
- 
-**Rotación respecto a un punto arbitrario $(c_x, c_y)$:**
- 
-1. Trasladar el centro al origen.
-2. Aplicar la rotación.
-3. Trasladar de regreso.
- 
-$$x' = (x - c_x)\cos\theta - (y - c_y)\sin\theta + c_x$$
-$$y' = (x - c_x)\sin\theta + (y - c_y)\cos\theta + c_y$$
- 
-**Tabla de valores comunes:**
- 
-| $\theta$ | $\cos\theta$ | $\sin\theta$ | Efecto               |
-|----------|-------------|-------------|----------------------|
-| $0°$     | 1           | 0           | Sin cambio           |
-| $90°$    | 0           | 1           | Giro 90° antihorario |
-| $180°$   | -1          | 0           | Inversión            |
-| $270°$   | 0           | -1          | Giro 90° horario     |
- 
-> 💡 **Aplicación:** Animación de personajes, rotación de la cámara en un mapa, efectos de giro en interfaces.
- 
+
+$$x' = x\cos\theta - y\sin\theta$$
+$$y' = x\sin\theta + y\cos\theta$$
+
+**En Blender — Interfaz gráfica:**
+
+- `R` → Rotación libre
+- `R → Z → 45 → Enter` → Rotar 45° alrededor del eje Z (equivale a rotación 2D)
+- El **punto de pivote** se configura en la barra superior:
+  - `Individual Origins` — cada objeto rota alrededor de su propio centro
+  - `3D Cursor` — rota alrededor del cursor 3D
+  - `Median Point` — rota alrededor del centro del grupo seleccionado
+
+**En Blender — Python scripting:**
+
+```python
+import bpy
+import math
+
+obj = bpy.context.active_object
+
+# Rotar 45 grados en Z (rotación 2D equivalente)
+# Blender usa radianes internamente
+obj.rotation_euler.z = math.radians(45)
+
+# Rotar de forma incremental
+obj.rotation_euler.z += math.radians(30)
+```
+
+> 💡 Blender almacena rotaciones en **radianes** internamente, aunque la interfaz muestra grados. Al usar Python siempre se utiliza `math.radians()` para convertir.
+
 ---
- 
+
 ### 2.1.4 Sesgado (Shearing)
- 
-El **sesgado** (o *shearing*) inclina la figura a lo largo de un eje, deformando los ángulos internos del objeto mientras mantiene su área. Es una transformación que "empuja" las coordenadas de un eje en función del valor del otro eje.
- 
-**Sesgado en el eje X (horizontal):**
- 
-$$x' = x + sh_x \cdot y$$
-$$y' = y$$
- 
-**Sesgado en el eje Y (vertical):**
- 
-$$x' = x$$
-$$y' = y + sh_y \cdot x$$
- 
-**Sesgado combinado:**
- 
-$$x' = x + sh_x \cdot y$$
-$$y' = sh_y \cdot x + y$$
- 
-**Ejemplo visual — Sesgado horizontal con $sh_x = 0.5$:**
- 
+
+El **sesgado** inclina la figura a lo largo de un eje, deformando sus ángulos internos sin cambiar el área.
+
+**Definición matemática:**
+
+Sesgado en X:
+$$x' = x + sh_x \cdot y \qquad y' = y$$
+
+Sesgado en Y:
+$$x' = x \qquad y' = y + sh_y \cdot x$$
+
+**En Blender — Interfaz gráfica:**
+
+El sesgado en Blender se aplica en **Edit Mode**:
+
+1. Entrar a Edit Mode (`Tab`).
+2. Seleccionar todos los vértices (`A`).
+3. Presionar `Ctrl + Alt + S` para activar Shear.
+4. Mover el mouse horizontalmente para sesgar en X, o verticalmente en Y.
+5. Se puede restringir al eje: `Ctrl + Alt + S → X` o `Ctrl + Alt + S → Y`.
+
+**En Blender — Python scripting:**
+
+```python
+import bpy
+import bmesh
+
+obj = bpy.context.active_object
+bpy.ops.object.mode_set(mode='EDIT')
+
+bm = bmesh.from_edit_mesh(obj.data)
+
+shear_factor = 0.5  # Factor de sesgado en X
+
+for vert in bm.verts:
+    # Sesgar: x' = x + sh * y
+    vert.co.x += shear_factor * vert.co.y
+
+bmesh.update_edit_mesh(obj.data)
+bpy.ops.object.mode_set(mode='OBJECT')
 ```
-Antes:           Después:
-┌──┐             ╱──╱
-│  │    →       ╱  ╱
-└──┘           ╱──╱
-```
- 
-**Propiedades:**
-- Conserva las **líneas paralelas** (son paralelas antes y después).
-- **No conserva** los ángulos internos.
-- El factor $sh_x$ representa la tangente del ángulo de inclinación horizontal.
- 
-> 💡 **Aplicación:** Efectos de perspectiva falsa (*fake perspective*), fuentes tipográficas en cursiva, sombras proyectadas.
- 
+
+> 💡 **Aplicación práctica en Blender:** El sesgado se usa para simular perspectivas, crear efectos de inclinación en textos, y deformar mallas para animaciones.
+
 ---
- 
+
 ## 2.2 Representación Matricial de las Transformaciones 2D
- 
-El uso de **matrices** permite unificar todas las transformaciones geométricas en una sola operación algebraica. Esto es especialmente útil para **componer** (encadenar) varias transformaciones de manera eficiente.
- 
+
+En Blender, **todas las transformaciones** se representan internamente como matrices. La librería `mathutils` de Blender provee clases nativas para trabajar con matrices, vectores y cuaterniones.
+
 ### Coordenadas Homogéneas
- 
-Para poder expresar la traslación (que es una suma) en forma matricial (multiplicación), se añade una tercera coordenada ficticia $w = 1$ a cada punto:
- 
+
+Para expresar traslación como multiplicación matricial se añade una coordenada ficticia $w = 1$:
+
 $$P = (x, y) \longrightarrow \tilde{P} = \begin{pmatrix} x \\ y \\ 1 \end{pmatrix}$$
- 
-Con esto, **todas las transformaciones** se representan como matrices $3 \times 3$.
- 
----
- 
-### Matrices de Transformación
- 
+
+### Matrices de Transformación 2D (3×3)
+
 **Traslación:**
- 
 $$T(t_x, t_y) = \begin{pmatrix} 1 & 0 & t_x \\ 0 & 1 & t_y \\ 0 & 0 & 1 \end{pmatrix}$$
- 
+
 **Escalamiento:**
- 
 $$S(s_x, s_y) = \begin{pmatrix} s_x & 0 & 0 \\ 0 & s_y & 0 \\ 0 & 0 & 1 \end{pmatrix}$$
- 
+
 **Rotación:**
- 
 $$R(\theta) = \begin{pmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{pmatrix}$$
- 
+
 **Sesgado:**
- 
 $$SH(sh_x, sh_y) = \begin{pmatrix} 1 & sh_x & 0 \\ sh_y & 1 & 0 \\ 0 & 0 & 1 \end{pmatrix}$$
- 
----
- 
+
+### Matrices en Blender con `mathutils`
+
+En Blender, los objetos tienen una **matriz de transformación** `matrix_world` que acumula todas sus transformaciones:
+
+```python
+import bpy
+import mathutils
+import math
+
+obj = bpy.context.active_object
+
+# Ver la matriz world del objeto (4x4 en 3D)
+print(obj.matrix_world)
+
+# Crear matrices 2D con mathutils (usando 4x4 para compatibilidad con Blender)
+# Traslación
+T = mathutils.Matrix.Translation((3.0, 2.0, 0.0))
+
+# Rotación en Z (equivale a rotación 2D)
+R = mathutils.Matrix.Rotation(math.radians(45), 4, 'Z')
+
+# Escala
+S = mathutils.Matrix.Scale(2.0, 4)   # Escala uniforme
+# O por ejes:
+Sx = mathutils.Matrix.Scale(2.0, 4, (1, 0, 0))  # Solo eje X
+Sy = mathutils.Matrix.Scale(0.5, 4, (0, 1, 0))  # Solo eje Y
+
+# Composición de transformaciones (orden importa)
+# Primero escalar, luego rotar, luego trasladar
+M = T @ R @ S
+
+# Aplicar la matriz compuesta al objeto
+obj.matrix_world = M
+```
+
 ### Composición de Transformaciones
- 
-La gran ventaja de la representación matricial es que aplicar varias transformaciones consecutivas equivale a **multiplicar sus matrices** y luego multiplicar una sola vez el punto:
- 
-$$P' = M_n \cdot M_{n-1} \cdots M_2 \cdot M_1 \cdot P$$
- 
-> ⚠️ **Atención:** La multiplicación de matrices **NO es conmutativa**. El orden importa: rotar y luego trasladar ≠ trasladar y luego rotar.
- 
-**Ejemplo — Rotación alrededor de un punto $(c_x, c_y)$:**
- 
-$$M = T(c_x, c_y) \cdot R(\theta) \cdot T(-c_x, -c_y)$$
- 
-$$= \begin{pmatrix} 1 & 0 & c_x \\ 0 & 1 & c_y \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{pmatrix} \begin{pmatrix} 1 & 0 & -c_x \\ 0 & 1 & -c_y \\ 0 & 0 & 1 \end{pmatrix}$$
- 
----
- 
-### 🎮 Ejercicio: Control con Teclas de Dirección
- 
-El siguiente ejercicio en **p5.js** muestra cómo aplicar transformaciones matriciales para mover una figura usando las teclas de dirección del teclado.
- 
-```javascript
-// Ejercicio: Transformaciones 2D con teclas de dirección
-// Plataforma: p5.js (https://editor.p5js.org/)
- 
-let x = 200, y = 200;   // Posición del objeto
-let angle = 0;           // Ángulo de rotación (en radianes)
-let escala = 1.0;        // Factor de escala
- 
-function setup() {
-  createCanvas(400, 400);
-  textAlign(CENTER);
-}
- 
-function draw() {
-  background(30);
- 
-  // Leer teclas presionadas
-  if (keyIsDown(LEFT_ARROW))  x -= 3;          // Traslación izquierda
-  if (keyIsDown(RIGHT_ARROW)) x += 3;          // Traslación derecha
-  if (keyIsDown(UP_ARROW))    y -= 3;          // Traslación arriba
-  if (keyIsDown(DOWN_ARROW))  y += 3;          // Traslación abajo
-  if (keyIsDown(90))          angle -= 0.05;   // Tecla Z: rotar antihorario
-  if (keyIsDown(88))          angle += 0.05;   // Tecla X: rotar horario
-  if (keyIsDown(65))          escala += 0.02;  // Tecla A: agrandar
-  if (keyIsDown(83))          escala -= 0.02;  // Tecla S: reducir
-  escala = constrain(escala, 0.1, 5);
- 
-  // Aplicar transformaciones (orden: trasladar → rotar → escalar)
-  push();
-    translate(x, y);     // Matriz de traslación
-    rotate(angle);       // Matriz de rotación
-    scale(escala);       // Matriz de escalamiento
- 
-    // Dibujar figura
-    fill(100, 200, 255);
-    noStroke();
-    rectMode(CENTER);
-    rect(0, 0, 60, 60);
- 
-    // Indicador de dirección
-    stroke(255, 80, 80);
-    strokeWeight(3);
-    line(0, 0, 40, 0);
-    fill(255, 80, 80);
-    noStroke();
-    triangle(40, 0, 30, -7, 30, 7);
-  pop();
- 
-  // HUD
-  fill(255);
-  noStroke();
-  textSize(12);
-  text(`Pos: (${int(x)}, ${int(y)})`, width/2, 20);
-  text(`Ángulo: ${nf(degrees(angle), 1, 1)}°`, width/2, 38);
-  text(`Escala: ${nf(escala, 1, 2)}x`, width/2, 56);
-  textSize(10);
-  fill(180);
-  text("← → ↑ ↓: Mover | Z/X: Rotar | A/S: Escalar", width/2, height - 10);
-}
+
+Combinar transformaciones se logra **multiplicando sus matrices** con el operador `@` en Python:
+
+```python
+import bpy, mathutils, math
+
+obj = bpy.context.active_object
+
+# Ejemplo: rotar el objeto alrededor de un punto arbitrario (px, py)
+px, py = 2.0, 1.0
+
+# 1. Trasladar el punto pivot al origen
+T1 = mathutils.Matrix.Translation((-px, -py, 0))
+
+# 2. Rotar
+R = mathutils.Matrix.Rotation(math.radians(60), 4, 'Z')
+
+# 3. Trasladar de regreso
+T2 = mathutils.Matrix.Translation((px, py, 0))
+
+# Composición: aplicar de derecha a izquierda
+M = T2 @ R @ T1
+
+obj.matrix_world = M @ obj.matrix_world
 ```
- 
-**Controles:**
- 
-| Tecla | Acción                    |
-|-------|---------------------------|
-| ←→↑↓  | Trasladar el objeto       |
-| Z     | Rotar en sentido antihorario |
-| X     | Rotar en sentido horario  |
-| A     | Aumentar escala           |
-| S     | Reducir escala            |
- 
-> 🔗 Puedes probarlo en [editor.p5js.org](https://editor.p5js.org/) pegando el código anterior.
- 
-**¿Qué demuestra este ejercicio?**
- 
-Internamente, p5.js construye una **pila de matrices de transformación**. Cada llamada a `translate()`, `rotate()` o `scale()` multiplica la matriz actual por la correspondiente. Al llamar `push()` y `pop()`, se guarda y restaura el estado de la matriz, lo que permite aplicar transformaciones locales sin afectar el resto de la escena.
- 
+
+> ⚠️ En Python/Blender el operador `@` es la multiplicación de matrices. El **orden importa**: `T @ R ≠ R @ T`.
+
 ---
- 
+
+### 🎮 Ejercicio: Control con Teclas de Dirección en Blender
+
+Este script de Blender mueve, rota y escala un objeto usando el **Modal Operator** con teclas de teclado, demostrando el uso de transformaciones matriciales en tiempo real.
+
+**Cómo usarlo:**
+1. Abrir Blender → Workspace **Scripting**.
+2. Crear un nuevo script, pegar el código.
+3. Ejecutar con el botón ▶ Run Script.
+4. Regresar al viewport 3D y presionar `F3`, buscar **"Transform Modal Demo"** y ejecutarlo.
+5. Usar las teclas indicadas mientras el objeto está seleccionado.
+
+```python
+import bpy
+import mathutils
+import math
+
+# ─────────────────────────────────────────────
+#  Operador Modal: Transformaciones con Teclado
+# ─────────────────────────────────────────────
+class OBJECT_OT_transform_modal(bpy.types.Operator):
+    bl_idname = "object.transform_modal_demo"
+    bl_label  = "Transform Modal Demo"
+    bl_description = "Mover, rotar y escalar con teclas de dirección"
+
+    _timer = None
+    STEP_MOVE  = 0.1
+    STEP_ROT   = math.radians(5)
+    STEP_SCALE = 0.05
+
+    def modal(self, context, event):
+        obj = context.active_object
+        if not obj:
+            return {'CANCELLED'}
+
+        # ── Traslación ──────────────────────────
+        if event.type == 'LEFT_ARROW'  and event.value == 'PRESS':
+            obj.location.x -= self.STEP_MOVE
+        if event.type == 'RIGHT_ARROW' and event.value == 'PRESS':
+            obj.location.x += self.STEP_MOVE
+        if event.type == 'UP_ARROW'    and event.value == 'PRESS':
+            obj.location.y += self.STEP_MOVE
+        if event.type == 'DOWN_ARROW'  and event.value == 'PRESS':
+            obj.location.y -= self.STEP_MOVE
+
+        # ── Rotación (Z = rotación 2D) ──────────
+        if event.type == 'Q' and event.value == 'PRESS':
+            obj.rotation_euler.z += self.STEP_ROT   # Antihorario
+        if event.type == 'E' and event.value == 'PRESS':
+            obj.rotation_euler.z -= self.STEP_ROT   # Horario
+
+        # ── Escalamiento ────────────────────────
+        if event.type == 'PLUS' and event.value == 'PRESS':
+            obj.scale *= 1 + self.STEP_SCALE
+        if event.type == 'MINUS' and event.value == 'PRESS':
+            factor = 1 - self.STEP_SCALE
+            obj.scale.x *= factor
+            obj.scale.y *= factor
+
+        # ── Salir con ESC o Enter ───────────────
+        if event.type in {'ESC', 'RET'}:
+            self.report({'INFO'}, "Transformación finalizada")
+            return {'FINISHED'}
+
+        return {'RUNNING_MODAL'}
+
+    def invoke(self, context, event):
+        if context.active_object:
+            context.window_manager.modal_handler_add(self)
+            self.report({'INFO'}, "←→↑↓: Mover | Q/E: Rotar | +/-: Escalar | ESC: Salir")
+            return {'RUNNING_MODAL'}
+        return {'CANCELLED'}
+
+
+def menu_func(self, context):
+    self.layout.operator(OBJECT_OT_transform_modal.bl_idname)
+
+
+def register():
+    bpy.utils.register_class(OBJECT_OT_transform_modal)
+    bpy.types.VIEW3D_MT_object.append(menu_func)
+
+def unregister():
+    bpy.utils.unregister_class(OBJECT_OT_transform_modal)
+    bpy.types.VIEW3D_MT_object.remove(menu_func)
+
+register()
+```
+
+**Controles del ejercicio:**
+
+| Tecla     | Acción                      |
+|-----------|-----------------------------|
+| ← → ↑ ↓  | Trasladar el objeto         |
+| Q         | Rotar en sentido antihorario|
+| E         | Rotar en sentido horario    |
+| + (Numpad)| Aumentar escala             |
+| - (Numpad)| Reducir escala              |
+| ESC / Enter| Finalizar                  |
+
+---
+
 ## 2.3 Trazo de Líneas Curvas
- 
-Las curvas son esenciales en graficación para representar contornos suaves, trayectorias y formas orgánicas. En lugar de definir miles de puntos individuales, se utilizan **funciones paramétricas** que generan curvas a partir de unos pocos **puntos de control**.
- 
-### Curvas Paramétricas
- 
-Una curva paramétrica en 2D se define como:
- 
-$$C(t) = \bigl(x(t),\ y(t)\bigr), \quad t \in [0, 1]$$
- 
-Al variar $t$ de 0 a 1 se recorre la curva completa.
- 
+
+Las curvas son fundamentales para representar formas suaves y orgánicas. Blender tiene soporte nativo muy completo para curvas, con dos grandes tipos: **Bézier** y **NURBS** (que son la generalización de las B-Spline).
+
+Para agregar una curva en Blender:
+`Add → Curve → Bézier` o `Add → Curve → NURBS Curve`
+
 ---
- 
+
 ### 2.3.1 Curvas de Bézier
- 
-Las **curvas de Bézier** fueron desarrolladas independientemente por Paul de Casteljau (Citroën, 1959) y Pierre Bézier (Renault, 1962) para el diseño asistido por computadora de carrocerías de automóviles. Hoy son omnipresentes en tipografía, diseño vectorial (SVG, PostScript, PDF) y animación.
- 
-#### Fundamento: Interpolación de Bernstein
- 
-Una curva de Bézier de grado $n$ se define mediante $n+1$ **puntos de control** $P_0, P_1, \ldots, P_n$:
- 
-$$C(t) = \sum_{i=0}^{n} \binom{n}{i} t^i (1-t)^{n-i} P_i, \quad t \in [0, 1]$$
- 
-donde los **polinomios de Bernstein** $B_{i,n}(t) = \binom{n}{i} t^i (1-t)^{n-i}$ actúan como pesos que siempre suman 1.
- 
-#### Curva Lineal (grado 1, 2 puntos de control)
- 
-$$C(t) = (1-t)P_0 + tP_1$$
- 
-Es simplemente una interpolación lineal entre $P_0$ y $P_1$.
- 
-#### Curva Cuadrática (grado 2, 3 puntos de control)
- 
-$$C(t) = (1-t)^2 P_0 + 2t(1-t)P_1 + t^2 P_2$$
- 
+
+Las curvas de Bézier, desarrolladas por Pierre Bézier (1962) para diseño de carrocerías, son el tipo de curva más usado en diseño vectorial, tipografía y animación. Blender las implementa nativamente.
+
+#### Fundamento Matemático
+
+Una curva de Bézier cúbica (la más utilizada) está definida por 4 puntos de control: el punto inicial $P_0$, dos **puntos de control** $P_1$ y $P_2$, y el punto final $P_3$:
+
+$$C(t) = (1-t)^3 P_0 + 3t(1-t)^2 P_1 + 3t^2(1-t) P_2 + t^3 P_3, \quad t \in [0,1]$$
+
+Al variar $t$ de 0 a 1 se recorre la curva completa.
+
+#### Anatomía de una Curva Bézier en Blender
+
+En Blender, cada **punto de control** de una curva Bézier tiene:
+
+- **Handle Left** y **Handle Right**: los puntos $P_1$ y $P_2$ de la fórmula, que determinan la dirección y suavidad de la curva.
+- **Tipos de handle:**
+
+| Tipo      | Atajo | Comportamiento                                     |
+|-----------|-------|----------------------------------------------------|
+| Auto      | `V → A` | Blender calcula los handles automáticamente     |
+| Vector    | `V → V` | Handles rectos → esquinas afiladas              |
+| Aligned   | `V → L` | Handles alineados → curva suave (C1 continua)   |
+| Free      | `V → F` | Handles independientes → control total          |
+
+#### Trabajar con Curvas Bézier en Blender
+
+**Crear y editar (GUI):**
+1. `Add → Curve → Bézier` en el viewport.
+2. Entrar a **Edit Mode** (`Tab`).
+3. Seleccionar puntos de control y moverlos con `G`.
+4. Extrudir nuevos puntos con `E`.
+5. Cambiar tipo de handle con `V`.
+6. Cerrar la curva: `Alt + C`.
+
+**Propiedades importantes (panel de propiedades, pestaña 🟢 Curve):**
+- **Resolution Preview U**: controla cuántos segmentos se usan al renderizar (más = más suave).
+- **Extrude**: da profundidad a la curva (convierte en forma 3D).
+- **Bevel Depth**: redondea los bordes.
+
+#### Curvas Bézier con Python en Blender
+
+```python
+import bpy
+
+# ── Crear una curva Bézier con Python ──────────────────────────
+# Limpiar escena
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete()
+
+# Crear objeto de curva
+curva_data = bpy.data.curves.new(name="MiCurvaBezier", type='CURVE')
+curva_data.dimensions = '2D'           # Modo 2D
+curva_data.resolution_u = 32           # Suavidad de la curva
+
+# Crear un spline tipo Bézier
+spline = curva_data.splines.new(type='BEZIER')
+spline.bezier_points.add(3)            # Total 4 puntos (1 inicial + 3 nuevos)
+
+# Definir los puntos de control (co) y sus handles
+puntos = [
+    {"co": (-3, -1, 0), "h_left": (-4, -2, 0), "h_right": (-2, 0, 0)},
+    {"co": (-1,  2, 0), "h_left": (-2,  3, 0), "h_right": (0,  1, 0)},
+    {"co": ( 1, -2, 0), "h_left": (0,  -3, 0), "h_right": (2, -1, 0)},
+    {"co": ( 3,  1, 0), "h_left": (2,   0, 0), "h_right": (4,  2, 0)},
+]
+
+for i, p in enumerate(puntos):
+    bp = spline.bezier_points[i]
+    bp.co            = p["co"]
+    bp.handle_left   = p["h_left"]
+    bp.handle_right  = p["h_right"]
+    bp.handle_left_type  = 'FREE'
+    bp.handle_right_type = 'FREE'
+
+# Crear el objeto y añadirlo a la escena
+obj = bpy.data.objects.new("CurvaBezier", curva_data)
+bpy.context.collection.objects.link(obj)
+bpy.context.view_layer.objects.active = obj
 ```
-P1 (punto de control)
- ●
-╱ ╲
-╱   ╲
-P0●───────●P2
-   curva
-```
- 
-#### Curva Cúbica (grado 3, 4 puntos de control) — La más utilizada
- 
-$$C(t) = (1-t)^3 P_0 + 3t(1-t)^2 P_1 + 3t^2(1-t) P_2 + t^3 P_3$$
- 
-```
-    P1●         ●P2
-      ╲         ╱
-P0●───╲───────╱───●P3
-        curva suave
-```
- 
-**Propiedades importantes:**
- 
-| Propiedad            | Descripción                                                          |
-|----------------------|----------------------------------------------------------------------|
-| Interpolación extremos | La curva **pasa** por $P_0$ y $P_n$ (primero y último punto)    |
-| Aproximación interior | La curva **no pasa** por los puntos intermedios (solo los "atrae")|
-| Envoltura convexa    | La curva está contenida en el casco convexo de los puntos de control |
-| Variación disminuida | Una línea recta corta la curva a lo sumo tantas veces como corta la poligonal de control |
-| Invarianza afín      | Las transformaciones afines se aplican a los puntos de control directamente |
- 
-#### Algoritmo de De Casteljau
- 
-El algoritmo de De Casteljau es una forma recursiva y numéricamente estable de evaluar puntos sobre la curva:
- 
-Para evaluar $C(t)$:
-1. Interpolar linealmente entre cada par de puntos consecutivos con parámetro $t$.
-2. Repetir con los nuevos puntos hasta obtener un único punto.
- 
-```
-Nivel 0: P0, P1, P2, P3
-Nivel 1: Q0=(1-t)P0+tP1, Q1=(1-t)P1+tP2, Q2=(1-t)P2+tP3
-Nivel 2: R0=(1-t)Q0+tQ1, R1=(1-t)Q1+tQ2
-Nivel 3: S0=(1-t)R0+tR1  ← punto en la curva
-```
- 
-#### Implementación en p5.js
- 
-```javascript
-// Curva de Bézier cúbica en p5.js
-function setup() {
-  createCanvas(400, 300);
-}
- 
-function draw() {
-  background(240);
- 
-  // Puntos de control
-  let P0 = { x: 50,  y: 250 };
-  let P1 = { x: 100, y: 50  };
-  let P2 = { x: 300, y: 50  };
-  let P3 = { x: 350, y: 250 };
- 
-  // Dibujar poligonal de control
-  stroke(180);
-  strokeWeight(1);
-  noFill();
-  beginShape();
-    vertex(P0.x, P0.y);
-    vertex(P1.x, P1.y);
-    vertex(P2.x, P2.y);
-    vertex(P3.x, P3.y);
-  endShape();
- 
-  // Dibujar curva de Bézier
-  stroke(0, 100, 255);
-  strokeWeight(2);
-  noFill();
-  beginShape();
-    // Muestrear 100 puntos con la fórmula cúbica
-    for (let t = 0; t <= 1; t += 0.01) {
-      let mt = 1 - t;
-      let bx = mt*mt*mt*P0.x + 3*t*mt*mt*P1.x + 3*t*t*mt*P2.x + t*t*t*P3.x;
-      let by = mt*mt*mt*P0.y + 3*t*mt*mt*P1.y + 3*t*t*mt*P2.y + t*t*t*P3.y;
-      vertex(bx, by);
-    }
-  endShape();
- 
-  // Dibujar puntos de control
-  fill(255, 60, 60);
-  noStroke();
-  for (let p of [P0, P1, P2, P3]) {
-    circle(p.x, p.y, 10);
-  }
-}
-```
- 
+
+#### Propiedades Matemáticas Clave
+
+| Propiedad              | Descripción                                                       |
+|------------------------|-------------------------------------------------------------------|
+| Interpolación extremos | La curva **pasa** por el primer y último punto de control         |
+| Aproximación interior  | La curva **no pasa** por los puntos intermedios (los "atrae")     |
+| Envoltura convexa      | La curva está contenida dentro del polígono de control            |
+| Invarianza afín        | Las transformaciones (traslación, rotación, escala) se aplican directamente a los puntos de control |
+
 ---
- 
-### 2.3.2 B-Spline
- 
-Las **B-Splines** (*Basis Splines*) son curvas que superan una limitación de las curvas de Bézier: cuando se necesitan curvas muy complejas, una sola Bézier de alto grado se vuelve difícil de controlar. Las B-Splines permiten usar **muchos puntos de control** manteniendo el grado de la curva **bajo y constante**.
- 
-#### Concepto fundamental
- 
+
+### 2.3.2 B-Spline (NURBS en Blender)
+
+Las **B-Splines** (*Basis Splines*) son una generalización de las curvas de Bézier. Su variante más potente son las **NURBS** (*Non-Uniform Rational B-Splines*), que Blender implementa directamente como tipo de curva nativo.
+
+#### ¿Por qué NURBS?
+
+| Limitación Bézier           | Solución en NURBS/B-Spline                          |
+|-----------------------------|-----------------------------------------------------|
+| Al agregar puntos, el grado sube y la curva se vuelve difícil de controlar | El grado se mantiene constante independientemente del número de puntos |
+| Un punto de control afecta **toda** la curva | Cada punto afecta solo una **región local** |
+| No pueden representar cónicas exactas (círculos, elipses) | NURBS representa cónicas **exactamente** con pesos racionales |
+
+#### Fundamento Matemático
+
 Una B-Spline de grado $k$ con $n+1$ puntos de control $P_0, \ldots, P_n$ se define como:
- 
+
 $$C(t) = \sum_{i=0}^{n} P_i \cdot N_{i,k}(t)$$
- 
-donde $N_{i,k}(t)$ son las **funciones base de B-Spline**, definidas recursivamente (fórmula de Cox-de Boor):
- 
-**Base caso (grado 0):**
+
+Las funciones base $N_{i,k}(t)$ se definen recursivamente (fórmula de Cox–de Boor):
+
+**Caso base:**
 $$N_{i,0}(t) = \begin{cases} 1 & \text{si } t_i \leq t < t_{i+1} \\ 0 & \text{en otro caso} \end{cases}$$
- 
-**Caso recursivo:**
+
+**Recursión:**
 $$N_{i,k}(t) = \frac{t - t_i}{t_{i+k} - t_i} N_{i,k-1}(t) + \frac{t_{i+k+1} - t}{t_{i+k+1} - t_{i+1}} N_{i+1,k-1}(t)$$
- 
-donde $\{t_0, t_1, \ldots, t_{n+k+1}\}$ es el **vector de nodos** (*knot vector*).
- 
-#### Tipos de vectores de nodos
- 
-| Tipo         | Descripción                                              | Ejemplo (3 puntos, grado 2) |
-|--------------|----------------------------------------------------------|-----------------------------|
-| Uniforme     | Nodos igualmente espaciados                              | `[0, 1, 2, 3, 4, 5]`       |
-| Abierto      | Repite primer y último nodo $k+1$ veces                  | `[0, 0, 0, 1, 2, 2, 2]`    |
-| No uniforme  | Espaciado arbitrario para control local                  | `[0, 0, 1, 3, 4, 4]`       |
- 
-> El vector de nodos **abierto** hace que la curva **interpole** (pase por) el primer y último punto de control, comportamiento similar a Bézier.
- 
-#### Diferencias clave: Bézier vs B-Spline
- 
-| Característica         | Bézier                            | B-Spline                              |
-|------------------------|-----------------------------------|---------------------------------------|
-| Interpolación extremos | Sí (pasa por P0 y Pn)            | Solo con vector abierto               |
-| Control local          | ❌ Un punto afecta toda la curva  | ✅ Un punto afecta solo una sección   |
-| Grado                  | Crece con puntos de control       | Se elige independientemente           |
-| Continuidad            | $C^{n-1}$ globalmente             | Controlable por repetición de nodos   |
-| Facilidad de uso       | Alta                              | Media (requiere manejar knot vector)  |
- 
-#### Implementación simplificada en p5.js
- 
-```javascript
-// B-Spline cúbica con vector de nodos abierto (usando curveVertex de p5.js)
-// p5.js implementa Catmull-Rom, que es una B-Spline uniforme
- 
-let pts = [];
- 
-function setup() {
-  createCanvas(400, 300);
-}
- 
-function mousePressed() {
-  pts.push({ x: mouseX, y: mouseY });
-}
- 
-function draw() {
-  background(240);
- 
-  // Necesitamos al menos 4 puntos para una B-Spline cúbica
-  if (pts.length >= 4) {
-    stroke(0, 150, 80);
-    strokeWeight(2);
-    noFill();
-    beginShape();
-      curveVertex(pts[0].x, pts[0].y);          // Repetir primer punto
-      for (let p of pts) curveVertex(p.x, p.y);
-      curveVertex(pts[pts.length-1].x, pts[pts.length-1].y); // Repetir último
-    endShape();
-  }
- 
-  // Dibujar puntos de control
-  fill(255, 100, 0);
-  noStroke();
-  for (let p of pts) circle(p.x, p.y, 10);
- 
-  // Instrucciones
-  fill(80); noStroke(); textSize(12);
-  text("Haz clic para agregar puntos de control", 10, 20);
-  text(`Puntos: ${pts.length} (mínimo 4)`, 10, 38);
-}
+
+En **NURBS** cada punto tiene además un **peso** $w_i$ que controla la atracción de la curva hacia ese punto:
+
+$$C(t) = \frac{\sum_{i=0}^{n} w_i P_i N_{i,k}(t)}{\sum_{i=0}^{n} w_i N_{i,k}(t)}$$
+
+#### NURBS en Blender (GUI)
+
+1. `Add → Curve → NURBS Curve` o `Add → Surface → NURBS Surface`.
+2. En **Edit Mode**, seleccionar puntos y moverlos con `G`.
+3. Cambiar el **Order** (grado + 1) en las propiedades de la curva: a mayor orden, mayor suavidad global.
+4. Activar **Endpoint** en las propiedades para que la curva interpole el primer y último punto.
+5. El **peso** de cada punto se puede editar en el panel N → Item → W.
+
+#### NURBS con Python en Blender
+
+```python
+import bpy
+
+# Limpiar escena
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete()
+
+# Crear curva tipo NURBS
+curva_data = bpy.data.curves.new(name="MiNURBS", type='CURVE')
+curva_data.dimensions = '2D'
+
+spline = curva_data.splines.new(type='NURBS')
+spline.points.add(4)         # Agregar 4 puntos más (total 5 incluyendo el inicial)
+spline.order_u = 4           # Grado cúbico (order = grado + 1)
+spline.use_endpoint_u = True # La curva pasa por el primer y último punto
+
+# Puntos de control: (x, y, z, weight)
+coordenadas = [
+    (-3.0, -1.0, 0.0, 1.0),
+    (-1.5,  2.0, 0.0, 1.0),
+    ( 0.0,  0.0, 0.0, 2.0),  # Mayor peso → curva se acerca más
+    ( 1.5, -2.0, 0.0, 1.0),
+    ( 3.0,  1.0, 0.0, 1.0),
+]
+
+for i, (x, y, z, w) in enumerate(coordenadas):
+    spline.points[i].co = (x, y, z, w)
+
+obj = bpy.data.objects.new("CurvaNURBS", curva_data)
+bpy.context.collection.objects.link(obj)
+bpy.context.view_layer.objects.active = obj
 ```
- 
+
+#### Comparativa: Bézier vs NURBS en Blender
+
+| Característica          | Bézier (Blender)             | NURBS (Blender)                     |
+|-------------------------|------------------------------|-------------------------------------|
+| Interfaz               | Handles visuales intuitivos  | Puntos de control con pesos         |
+| Control local          | Limitado                     | Excelente (afecta región local)     |
+| Representar círculos   | Aproximación                 | Exacto (con pesos racionales)       |
+| Uso típico             | Ilustración, animación, texto| Modelado de superficies, ingeniería |
+| Facilidad de uso       | Alta                         | Media                               |
+
 ---
- 
-### 🎬 Ejercicio: Animación con Curvas
- 
-El siguiente ejercicio anima un objeto a lo largo de una curva de Bézier cúbica, combinando curvas con transformaciones 2D.
- 
-```javascript
-// Animación: objeto siguiendo una curva de Bézier
-let t = 0;
-let speed = 0.005;
- 
-// Puntos de control de la curva
-let P0, P1, P2, P3;
- 
-function setup() {
-  createCanvas(500, 400);
-  P0 = createVector(50,  350);
-  P1 = createVector(150, 50);
-  P2 = createVector(350, 50);
-  P3 = createVector(450, 350);
-}
- 
-function draw() {
-  background(20, 20, 40);
- 
-  // Dibujar curva de referencia
-  stroke(80, 80, 120);
-  strokeWeight(1);
-  noFill();
-  beginShape();
-  for (let s = 0; s <= 1; s += 0.01) {
-    let pos = bezierPoint3D(s);
-    vertex(pos.x, pos.y);
-  }
-  endShape();
- 
-  // Obtener posición y tangente en t
-  let pos = bezierPoint3D(t);
-  let pos2 = bezierPoint3D(t + 0.01);
-  let angle = atan2(pos2.y - pos.y, pos2.x - pos.x);
- 
-  // Dibujar objeto animado (cohete/flecha orientada)
-  push();
-    translate(pos.x, pos.y);
-    rotate(angle);
- 
-    // Cuerpo
-    fill(100, 200, 255);
-    noStroke();
-    ellipse(0, 0, 30, 15);
- 
-    // Punta
-    fill(255, 100, 100);
-    triangle(15, 0, 5, -8, 5, 8);
- 
-    // Flama
-    fill(255, 200, 0, 180);
-    triangle(-15, 0, -30, -8, -30, 8);
-  pop();
- 
-  // Punto brillante en la posición actual
-  fill(255, 255, 100);
-  noStroke();
-  circle(pos.x, pos.y, 8);
- 
-  // Avanzar t
-  t += speed;
-  if (t > 1) t = 0;
- 
-  // Puntos de control
-  fill(255, 80, 80); noStroke();
-  for (let p of [P0, P1, P2, P3]) circle(p.x, p.y, 8);
- 
-  // HUD
-  fill(200); noStroke(); textSize(11);
-  text(`t = ${nf(t, 1, 3)}`, 10, 20);
-}
- 
-// Función auxiliar: punto en la curva de Bézier cúbica
-function bezierPoint3D(t) {
-  let mt = 1 - t;
-  return createVector(
-    mt*mt*mt*P0.x + 3*t*mt*mt*P1.x + 3*t*t*mt*P2.x + t*t*t*P3.x,
-    mt*mt*mt*P0.y + 3*t*mt*mt*P1.y + 3*t*t*mt*P2.y + t*t*t*P3.y
-  );
-}
+
+### 🎬 Ejercicio: Animación con Curvas en Blender
+
+Este ejercicio anima un objeto siguiendo una curva Bézier, una de las técnicas más usadas en animación 3D/2D con Blender.
+
+#### Método 1 — GUI (Follow Path Constraint)
+
+1. Crear una **curva Bézier**: `Add → Curve → Bézier`. Editarla a gusto.
+2. Crear un objeto a animar: `Add → Mesh → UV Sphere` (o cualquier objeto).
+3. Seleccionar el objeto (esfera).
+4. En el panel de **Propiedades → Object Constraint Properties** (🔗 ícono de cadena):
+   - Agregar constraint: **Follow Path**.
+   - En el campo **Target**, seleccionar la curva.
+   - Activar **Fixed Position** y **Follow Curve**.
+5. Con la curva seleccionada: `Object Data Properties → Path Animation`:
+   - Activar **Frames**: define cuántos frames dura el recorrido.
+   - Presionar `Alt + A` para previsualizar la animación.
+
+#### Método 2 — Python scripting
+
+```python
+import bpy
+import math
+
+# ── Limpiar escena ────────────────────────────────────────────
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete()
+
+# ── Crear la curva de trayectoria ─────────────────────────────
+curva_data = bpy.data.curves.new("Trayectoria", type='CURVE')
+curva_data.dimensions = '3D'
+curva_data.path_duration = 100   # La animación dura 100 frames
+
+spline = curva_data.splines.new('BEZIER')
+spline.bezier_points.add(3)
+
+# Definir la forma de la curva (S)
+pts = [
+    {"co":(-3,-2,0), "hl":(-4,-3,0), "hr":(-2,-1,0)},
+    {"co":(-1, 2,0), "hl":(-2, 3,0), "hr":( 0, 1,0)},
+    {"co":( 1,-2,0), "hl":( 0,-3,0), "hr":( 2,-1,0)},
+    {"co":( 3, 2,0), "hl":( 2, 1,0), "hr":( 4, 3,0)},
+]
+for i, p in enumerate(pts):
+    bp = spline.bezier_points[i]
+    bp.co = p["co"]
+    bp.handle_left  = p["hl"]
+    bp.handle_right = p["hr"]
+    bp.handle_left_type  = 'FREE'
+    bp.handle_right_type = 'FREE'
+
+curva_obj = bpy.data.objects.new("Trayectoria", curva_data)
+bpy.context.collection.objects.link(curva_obj)
+
+# ── Crear el objeto animado ───────────────────────────────────
+bpy.ops.mesh.primitive_cone_add(radius1=0.2, depth=0.5)
+cone = bpy.context.active_object
+cone.name = "Cohete"
+
+# ── Agregar constraint Follow Path ───────────────────────────
+constraint = cone.constraints.new(type='FOLLOW_PATH')
+constraint.target = curva_obj
+constraint.use_curve_follow = True    # Orienta el objeto según la curva
+constraint.forward_axis = 'FORWARD_Y' # Eje frontal del objeto
+
+# Activar animación de la curva
+curva_data.use_path = True
+
+print("✅ Animación creada. Presiona Space para reproducirla.")
 ```
- 
+
 **¿Qué demuestra este ejercicio?**
-- Evaluación paramétrica de la curva de Bézier con $t \in [0,1]$.
-- Cálculo de la **tangente** (derivada aproximada) para orientar el objeto.
-- Combinación de `translate()` y `rotate()` para posicionar y orientar el sprite.
- 
+- La curva actúa como una **trayectoria paramétrica** $C(t)$ con $t \in [0, 1]$ mapeado a los frames de la animación.
+- El constraint **Follow Path** calcula automáticamente la tangente de la curva en cada frame para orientar el objeto.
+- Internamente Blender evalúa la curva Bézier con la misma fórmula matemática vista en la sección 2.3.1.
+
 ---
- 
+
 ## 2.4 Fractales
- 
-Los **fractales** son estructuras geométricas que exhiben **autosimilitud**: se ven iguales (o similares) a cualquier escala de observación. El término fue acuñado por Benoît Mandelbrot (1975), derivado del latín *fractus* (quebrado, irregular).
- 
+
+Los **fractales** son estructuras geométricas con **autosimilitud**: se ven iguales a cualquier escala de observación. El término fue acuñado por Benoît Mandelbrot (1975), del latín *fractus* (quebrado, irregular).
+
 ### Conceptos Fundamentales
- 
-**Dimensión fractal:**
-A diferencia de los objetos euclidianos (una línea tiene dimensión 1, un plano tiene dimensión 2), los fractales pueden tener **dimensiones no enteras**. La dimensión de Hausdorff-Besicovitch mide la "rugosidad":
- 
+
+**Dimensión fractal (Hausdorff):**
+
+A diferencia de la geometría euclidiana, los fractales tienen dimensiones **no enteras**:
+
 $$D = \frac{\log N}{\log (1/r)}$$
- 
-donde $N$ es el número de copias auto-similares y $r$ es el factor de reducción.
- 
+
+donde $N$ es el número de copias auto-similares y $r$ es el factor de reducción de cada copia.
+
 **Ejemplo — Triángulo de Sierpiński:**
-- Se divide el triángulo en 3 copias a escala $1/2$: $N = 3$, $r = 1/2$
+- $N = 3$ copias a escala $r = 1/2$
 - $D = \log(3)/\log(2) \approx 1.585$
- 
-### Tipos de Fractales
- 
+
+### Fractales Clásicos
+
 #### 1. Conjunto de Mandelbrot
- 
-El conjunto de Mandelbrot es el conjunto de números complejos $c$ para los cuales la iteración:
- 
-$$z_{n+1} = z_n^2 + c, \quad z_0 = 0$$
- 
-**no diverge** (permanece acotada). Su frontera es infinitamente compleja y constituye uno de los objetos matemáticos más famosos.
- 
-```javascript
-// Conjunto de Mandelbrot en p5.js
-function setup() {
-  createCanvas(400, 400);
-  pixelDensity(1);
-  noLoop();
-}
- 
-function draw() {
-  loadPixels();
-  let maxIter = 100;
-  let xMin = -2.5, xMax = 1.0;
-  let yMin = -1.25, yMax = 1.25;
- 
-  for (let px = 0; px < width; px++) {
-    for (let py = 0; py < height; py++) {
-      // Mapear píxel a coordenada compleja
-      let cr = map(px, 0, width, xMin, xMax);
-      let ci = map(py, 0, height, yMin, yMax);
- 
-      let zr = 0, zi = 0;
-      let iter = 0;
- 
-      // Iterar z = z² + c
-      while (zr*zr + zi*zi < 4 && iter < maxIter) {
-        let temp = zr*zr - zi*zi + cr;
-        zi = 2*zr*zi + ci;
-        zr = temp;
-        iter++;
-      }
- 
-      // Colorear según velocidad de escape
-      let idx = 4 * (py * width + px);
-      if (iter === maxIter) {
-        // Dentro del conjunto → negro
-        pixels[idx] = pixels[idx+1] = pixels[idx+2] = 0;
-      } else {
-        // Fuera → gradiente suave
-        let ratio = iter / maxIter;
-        pixels[idx]   = int(9   * (1-ratio) * ratio*ratio*ratio * 255); // R
-        pixels[idx+1] = int(15  * (1-ratio)*(1-ratio) * ratio*ratio * 255); // G
-        pixels[idx+2] = int(8.5 * (1-ratio)*(1-ratio)*(1-ratio) * ratio * 255); // B
-      }
-      pixels[idx+3] = 255; // Alpha
-    }
-  }
-  updatePixels();
-}
+
+El conjunto de Mandelbrot es el conjunto de números complejos $c$ para los cuales la iteración $z_{n+1} = z_n^2 + c$ (con $z_0 = 0$) **no diverge**.
+
+```python
+# Conjunto de Mandelbrot renderizado en Blender con el nodo Script
+# (usar en Geometry Nodes o como imagen generada)
+
+import bpy
+import numpy as np
+
+def mandelbrot(width=512, height=512, max_iter=100):
+    """Genera imagen del conjunto de Mandelbrot como array."""
+    img = np.zeros((height, width, 4), dtype=np.float32)
+    
+    for py in range(height):
+        for px in range(width):
+            # Mapear píxel a número complejo
+            cr = (px / width)  * 3.5 - 2.5   # Rango real: [-2.5, 1.0]
+            ci = (py / height) * 2.0 - 1.0   # Rango imag: [-1.0, 1.0]
+            
+            zr, zi = 0.0, 0.0
+            it = 0
+            while zr*zr + zi*zi < 4.0 and it < max_iter:
+                zr, zi = zr*zr - zi*zi + cr, 2*zr*zi + ci
+                it += 1
+            
+            # Color según velocidad de escape
+            t = it / max_iter
+            img[py, px] = [t**0.5, t**2, t, 1.0]  # RGBA
+    
+    return img
+
+# Crear imagen en Blender
+w, h = 256, 256
+pixel_data = mandelbrot(w, h).flatten().tolist()
+
+if "Mandelbrot" in bpy.data.images:
+    bpy.data.images.remove(bpy.data.images["Mandelbrot"])
+
+img = bpy.data.images.new("Mandelbrot", width=w, height=h)
+img.pixels = pixel_data
+img.update()
+print("✅ Imagen 'Mandelbrot' generada en el Image Editor de Blender.")
 ```
- 
-#### 2. Conjunto de Julia
- 
-Relacionado con Mandelbrot: se fija $c$ como constante y se varía $z_0$. Cada valor de $c$ produce un conjunto de Julia diferente.
- 
-$$z_{n+1} = z_n^2 + c, \quad c = \text{constante fija}, \quad z_0 = \text{variable}$$
- 
-#### 3. Curva de Koch (Copo de Nieve)
- 
-Se construye iterativamente dividiendo cada segmento en tercios y levantando un triángulo equilátero en el segmento central:
- 
-- Dimensión fractal: $D = \log(4)/\log(3) \approx 1.261$
-- Perímetro: **infinito** (crece por factor $4/3$ en cada iteración)
-- Área: **finita** (converge)
- 
-```javascript
-// Curva de Koch recursiva
-function kochCurve(x1, y1, x2, y2, depth) {
-  if (depth === 0) {
-    line(x1, y1, x2, y2);
-    return;
-  }
-  let dx = x2 - x1, dy = y2 - y1;
- 
-  // Dividir en tercios
-  let ax = x1 + dx/3,        ay = y1 + dy/3;
-  let bx = x1 + 2*dx/3,      by = y1 + 2*dy/3;
- 
-  // Punto del pico del triángulo (rotación 60°)
-  let angle = atan2(dy, dx) - PI/3;
-  let len = dist(x1, y1, x2, y2) / 3;
-  let cx = ax + cos(angle)*len;
-  let cy = ay + sin(angle)*len;
- 
-  kochCurve(x1, y1, ax, ay, depth - 1);
-  kochCurve(ax, ay, cx, cy, depth - 1);
-  kochCurve(cx, cy, bx, by, depth - 1);
-  kochCurve(bx, by, x2, y2, depth - 1);
-}
- 
-function setup() { createCanvas(400, 400); }
-function draw() {
-  background(255);
-  stroke(0, 80, 200); strokeWeight(1);
-  kochCurve(50, 300, 350, 300, 5);
-}
+
+#### 2. Curva de Koch con Geometry Nodes / Python
+
+```python
+import bpy
+import math
+
+def koch_points(p1, p2, depth):
+    """Genera los puntos de la curva de Koch recursivamente."""
+    if depth == 0:
+        return [p1, p2]
+    
+    dx, dy = p2[0]-p1[0], p2[1]-p1[1]
+    
+    # Dividir en tercios
+    a = (p1[0] + dx/3,    p1[1] + dy/3)
+    b = (p1[0] + 2*dx/3,  p1[1] + 2*dy/3)
+    
+    # Pico del triángulo (rotar 60°)
+    angle = math.atan2(dy, dx) - math.pi/3
+    length = math.hypot(dx, dy) / 3
+    c = (a[0] + math.cos(angle)*length, a[1] + math.sin(angle)*length)
+    
+    # Recursión
+    return (koch_points(p1, a, depth-1)[:-1] +
+            koch_points(a,  c, depth-1)[:-1] +
+            koch_points(c,  b, depth-1)[:-1] +
+            koch_points(b, p2, depth-1))
+
+# Generar puntos con profundidad 4
+puntos_2d = koch_points((-2, 0), (2, 0), depth=4)
+
+# Crear curva en Blender
+curva = bpy.data.curves.new("Koch", type='CURVE')
+curva.dimensions = '2D'
+spline = curva.splines.new('POLY')
+spline.points.add(len(puntos_2d) - 1)
+
+for i, (x, y) in enumerate(puntos_2d):
+    spline.points[i].co = (x, y, 0, 1)
+
+obj = bpy.data.objects.new("CurvaKoch", curva)
+bpy.context.collection.objects.link(obj)
+print(f"✅ Curva de Koch creada con {len(puntos_2d)} puntos.")
 ```
- 
-#### 4. Triángulo de Sierpiński
- 
-Se construye eliminando recursivamente el triángulo central de cada triángulo:
- 
-```javascript
-function sierpinski(x1, y1, x2, y2, x3, y3, depth) {
-  if (depth === 0) {
-    fill(100, 180, 255); noStroke();
-    triangle(x1, y1, x2, y2, x3, y3);
-    return;
-  }
-  let mx12 = (x1+x2)/2, my12 = (y1+y2)/2;
-  let mx23 = (x2+x3)/2, my23 = (y2+y3)/2;
-  let mx31 = (x3+x1)/2, my31 = (y3+y1)/2;
- 
-  sierpinski(x1, y1, mx12, my12, mx31, my31, depth-1);
-  sierpinski(mx12, my12, x2, y2, mx23, my23, depth-1);
-  sierpinski(mx31, my31, mx23, my23, x3, y3, depth-1);
-}
+
+#### 3. Triángulo de Sierpiński con Geometry Nodes
+
+```python
+import bpy
+import bmesh
+
+def sierpinski_vertices(v1, v2, v3, depth):
+    """Retorna lista de triángulos (como ternas de vértices)."""
+    if depth == 0:
+        return [(v1, v2, v3)]
+    
+    m12 = ((v1[0]+v2[0])/2, (v1[1]+v2[1])/2)
+    m23 = ((v2[0]+v3[0])/2, (v2[1]+v3[1])/2)
+    m31 = ((v3[0]+v1[0])/2, (v3[1]+v1[1])/2)
+    
+    return (sierpinski_vertices(v1, m12, m31, depth-1) +
+            sierpinski_vertices(m12, v2, m23, depth-1) +
+            sierpinski_vertices(m31, m23, v3, depth-1))
+
+# Generar triángulos
+triangulos = sierpinski_vertices((-2,0), (2,0), (0, 3.46), depth=5)
+
+# Crear malla en Blender
+mesh = bpy.data.meshes.new("Sierpinski")
+bm = bmesh.new()
+
+for t in triangulos:
+    verts = [bm.verts.new((x, y, 0)) for x, y in t]
+    bm.faces.new(verts)
+
+bm.to_mesh(mesh)
+bm.free()
+
+obj = bpy.data.objects.new("Sierpinski", mesh)
+bpy.context.collection.objects.link(obj)
+print(f"✅ Triángulo de Sierpiński: {len(triangulos)} triángulos, profundidad 5.")
 ```
- 
-#### 5. Sistema de Funciones Iteradas (IFS) — Helecho de Barnsley
- 
-El helecho de Barnsley es un fractal generado por 4 transformaciones afines aplicadas aleatoriamente con distintas probabilidades:
- 
-| Transformación | $a$   | $b$   | $c$   | $d$   | $e$ | $f$   | Prob. |
-|----------------|-------|-------|-------|-------|-----|-------|-------|
-| $f_1$ (tallo)  | 0     | 0     | 0     | 0.16  | 0   | 0     | 1%    |
-| $f_2$ (hoja)   | 0.85  | 0.04  | -0.04 | 0.85  | 0   | 1.60  | 85%   |
-| $f_3$ (izq.)   | 0.20  | -0.26 | 0.23  | 0.22  | 0   | 1.60  | 7%    |
-| $f_4$ (der.)   | -0.15 | 0.28  | 0.26  | 0.24  | 0   | 0.44  | 7%    |
- 
+
 ### Aplicaciones de los Fractales
- 
-- **Generación de terrenos** y paisajes naturales (nubes, montañas, costas).
-- **Compresión de imágenes** (compresión fractal).
-- **Antenas fractales**: tamaño reducido con alta eficiencia multifrequencia.
-- **Medicina**: análisis de patrones en electrocardiogramas, estructuras pulmonares.
-- **Arte generativo** y efectos visuales en cine.
- 
+
+- **Generación de terrenos** en videojuegos y cine (Blender usa fractales en texturas procedurales como *Musgrave* y *Noise*).
+- **Texturas procedurales**: el nodo **Noise Texture** de Blender implementa ruido fractal.
+- **Antenas fractales**: tamaño reducido con alta eficiencia multifrecuencia.
+- **Arte generativo** y efectos visuales.
+
+> 💡 En Blender, explorar `Shader Editor → Add → Texture → Musgrave Texture` para ver un fractal aplicado como textura procedural.
+
 ---
- 
+
 ## 2.5 Uso y Creación de Fuentes de Texto
- 
-La **tipografía computacional** es la disciplina que estudia la representación, almacenamiento y renderizado de caracteres en sistemas digitales. Los gráficos de texto son en sí mismos una forma de graficación 2D.
- 
-### Tipos de Representación de Fuentes
- 
-#### 1. Fuentes de Mapa de Bits (Raster/Bitmap Fonts)
- 
-Los caracteres se almacenan como **matrices de píxeles** (imágenes).
- 
+
+Blender tiene soporte nativo para texto tipográfico en 3D y 2D, permitiendo cargar fuentes TrueType (`.ttf`) y OpenType (`.otf`) directamente.
+
+### Tipos de Fuentes en Informática
+
+#### 1. Fuentes de Mapa de Bits (Bitmap/Raster)
+
+Los caracteres se almacenan como **matrices de píxeles**.
+
 ```
-Letra 'A' en 5×7 píxeles:
+Letra 'A' 5×7 px:
 . █ █ .
 █ . . █
 █ █ █ █
 █ . . █
 █ . . █
 ```
- 
-**Ventajas:**
-- Renderizado rápido (los píxeles están precalculados).
-- Perfectas para tamaños fijos y pantallas de baja resolución.
- 
-**Desventajas:**
-- **No escalables**: al aumentar el tamaño, se pixelan.
-- Requieren una imagen por cada tamaño y estilo.
- 
-**Ejemplos:** Fuentes de terminales clásicos (como las fuentes `.FON` de Windows), fuentes de sistemas embebidos.
- 
+
+**Ventajas:** Renderizado instantáneo para tamaños fijos.
+**Desventajas:** No escalan → se pixelan. Requieren una imagen por tamaño.
+
 #### 2. Fuentes Vectoriales (Outline Fonts)
- 
-Los caracteres se definen mediante **curvas matemáticas** (principalmente Bézier cúbicas o cuadráticas) almacenadas como vectores. Al renderizar, se rasteriza al tamaño deseado.
- 
-**Tecnologías principales:**
- 
-| Formato | Desarrollador | Curvas usadas  | Extensión  |
-|---------|---------------|----------------|------------|
-| Type 1  | Adobe (1984)  | Bézier cúbica  | `.pfb`     |
-| TrueType| Apple/MS (1991)| Bézier cuadrática | `.ttf` |
-| OpenType| Adobe/MS (1997)| Cúbica o cuadrática | `.otf` |
-| WOFF/WOFF2 | W3C (2010) | Empaquetado web | `.woff` |
- 
-**Ventajas:**
-- **Escalables** a cualquier tamaño sin pérdida de calidad.
-- Un solo archivo cubre todos los tamaños.
-- Soportan **hinting** para mejorar la legibilidad en pantallas.
- 
-**Anatomía de un glifo vectorial (letra 'O'):**
- 
+
+Los caracteres se definen con **curvas Bézier**. Blender utiliza esta tecnología internamente para renderizar texto.
+
+| Formato  | Desarrollador | Curva usada        | Extensión |
+|----------|---------------|--------------------|-----------|
+| Type 1   | Adobe (1984)  | Bézier cúbica      | `.pfb`    |
+| TrueType | Apple/MS (1991)| Bézier cuadrática | `.ttf`    |
+| OpenType | Adobe/MS (1997)| Cúbica o cuadrática| `.otf`    |
+| WOFF2    | W3C (2010)    | Comprimido para web| `.woff2`  |
+
+#### 3. Fuentes Variables (Variable Fonts)
+
+Un solo archivo contiene toda la familia, interpolando entre ejes:
+
+| Eje    | Etiqueta | Efecto                |
+|--------|----------|-----------------------|
+| Weight | `wght`   | Grosor del trazo      |
+| Width  | `wdth`   | Expansión horizontal  |
+| Slant  | `slnt`   | Inclinación           |
+
+### Texto en Blender
+
+#### GUI — Crear y editar texto
+
+1. `Add → Text` en el viewport 3D.
+2. Entrar a **Edit Mode** (`Tab`) para escribir.
+3. En **Object Data Properties** (pestaña con ícono de `A`):
+   - **Font**: cargar fuente `.ttf` o `.otf` desde disco.
+   - **Font Bold / Italic / Bold-Italic**: fuentes para cada estilo.
+   - **Size**: tamaño del texto.
+   - **Character Spacing / Word Spacing / Line Distance**: espaciado.
+4. En **Paragraph**: alineación (izquierda, centro, derecha, justificado).
+5. Convertir a malla: `Object → Convert → Mesh` para poder editar vértices.
+
+#### Métricas Tipográficas en Blender
+
 ```
-     ●──────────●          ← puntos de control Bézier
-    ╱              ╲
-   ●                ●
-   │                │
-   ●                ●
-    ╲              ╱
-     ●──────────●
+                ┌── Ascender
+    ▲           │
+    │  ████████ ← Cap-height
+    │  ██  ████
+    │  ████████ ← x-height
+    │  ██
+    │  ████████
+────┼─────────── Baseline ─────
+    │  ██        ▲
+    ▼  ██        └── Descender
 ```
- 
-Cada carácter es un contorno cerrado de curvas Bézier. El interior se rellena mediante reglas como *even-odd* o *non-zero winding*.
- 
-#### 3. Fuentes de Color (Color Fonts)
- 
-Formatos modernos que permiten glifos multicolor, gradientes y transparencia:
- 
-- **COLR/CPAL** (OpenType 1.8, 2016): capas vectoriales con paletas de color.
-- **CBDT/CBLC**: mapas de bits a color integrados en OpenType.
-- **SVG** en OpenType: glifos descritos directamente con SVG.
-- **sbix** (Apple): mapas de bits de alta resolución.
- 
-#### 4. Fuentes Variables (Variable Fonts)
- 
-OpenType 1.8 introduce las **fuentes variables**: un único archivo que contiene toda la familia, interpolando entre **ejes de variación**:
- 
-| Eje   | Etiqueta | Rango típico | Efecto        |
-|-------|----------|--------------|---------------|
-| Weight | `wght` | 100–900      | Grosor del trazo |
-| Width  | `wdth` | 75%–125%     | Expansión horizontal |
-| Slant  | `slnt` | -15°–15°     | Inclinación   |
-| Optical Size | `opsz` | 6–144pt | Ajuste óptico |
- 
-### Creación de Fuentes con p5.js / opentype.js
- 
-```javascript
-// Cargar y usar una fuente TrueType en p5.js
-let myFont;
- 
-function preload() {
-  // Cargar fuente desde archivo local o URL
-  myFont = loadFont('assets/OpenSans-Regular.ttf');
-}
- 
-function setup() {
-  createCanvas(400, 200);
-}
- 
-function draw() {
-  background(240);
- 
-  // Usar la fuente cargada
-  textFont(myFont);
-  textSize(48);
-  textAlign(CENTER, CENTER);
-  fill(30, 80, 200);
-  text("Graficación 2D", width/2, height/2 - 30);
- 
-  // Obtener contornos del texto como puntos (para manipulación)
-  let bounds = myFont.textBounds("Hola", 50, 100, 40);
-  let pts = myFont.textBounds("Hola", 50, 100, 40);
- 
-  // Texto con transformaciones
-  push();
-    translate(width/2, height/2 + 30);
-    rotate(sin(frameCount * 0.05) * 0.1);
-    scale(1 + sin(frameCount * 0.07) * 0.05);
-    textSize(24);
-    fill(200, 60, 60);
-    text("Texto animado", 0, 0);
-  pop();
-}
+
+| Métrica    | Descripción                                    | En Blender                |
+|------------|------------------------------------------------|---------------------------|
+| Baseline   | Línea base de los caracteres                   | Posición Y del objeto texto|
+| Ascender   | Altura sobre la baseline                       | Afecta la caja de texto   |
+| Descender  | Profundidad bajo la baseline                   | Idem                      |
+| Kerning    | Ajuste de espacio entre pares de letras        | Character Spacing          |
+
+#### Python — Crear y manipular texto en Blender
+
+```python
+import bpy
+import math
+
+# ── Crear objeto de texto ──────────────────────────────────────
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete()
+
+# Crear texto
+bpy.ops.object.text_add(location=(0, 0, 0))
+obj = bpy.context.active_object
+obj.name = "TextoDemo"
+
+# Acceder a los datos del texto
+texto = obj.data
+texto.body           = "Graficación 2D"
+texto.size           = 0.8
+texto.align_x        = 'CENTER'
+texto.align_y        = 'CENTER'
+texto.space_character = 1.1   # Kerning global
+
+# ── Cargar fuente personalizada ───────────────────────────────
+# (Descomenta y ajusta la ruta a tu fuente .ttf)
+# fuente = bpy.data.fonts.load("/ruta/a/fuente.ttf")
+# texto.font = fuente
+
+# ── Extrusión para efecto 3D ──────────────────────────────────
+texto.extrude = 0.05        # Dar profundidad
+texto.bevel_depth = 0.01    # Redondear bordes
+
+# ── Animación del texto: escalar con keyframes ────────────────
+obj.scale = (0.01, 0.01, 0.01)
+obj.keyframe_insert(data_path="scale", frame=1)    # Frame 1: pequeño
+
+obj.scale = (1.0, 1.0, 1.0)
+obj.keyframe_insert(data_path="scale", frame=30)   # Frame 30: tamaño normal
+
+print("✅ Texto creado y animado entre frame 1 y 30.")
 ```
- 
-### Algoritmos de Renderizado de Texto
- 
-#### Rasterización (Scanline Fill)
- 
-Para renderizar un glifo vectorial:
- 
-1. **Descomposición**: separar el contorno en segmentos y curvas.
-2. **Scanline**: para cada fila de píxeles, calcular intersecciones con el contorno.
-3. **Rellenado**: colorear los píxeles según la regla de llenado (even-odd o non-zero winding).
-4. **Anti-aliasing** (suavizado): usar sub-muestreo o cobertura de área para píxeles en el borde.
- 
-#### Hinting
- 
-El *hinting* son instrucciones especiales dentro de la fuente que ajustan los contornos del glifo a la cuadrícula de píxeles en tamaños pequeños, mejorando la legibilidad:
- 
-- **Instrucciones TrueType**: lenguaje de bajo nivel, muy preciso.
-- **PostScript hints**: más simples, dependen más del renderizador.
-- **Auto-hinting**: FreeType calcula hints automáticamente.
- 
-#### Sub-pixel Rendering (ClearType)
- 
-Aprovecha la disposición física RGB de los sub-píxeles en monitores LCD para triplicar efectivamente la resolución horizontal:
- 
+
+#### Convertir Texto a Curvas y Malla
+
+```python
+import bpy
+
+# Texto → Curva (preserva las curvas Bézier de los glifos)
+bpy.ops.object.select_all(action='SELECT')
+texto_obj = bpy.context.active_object
+bpy.ops.object.convert(target='CURVE')
+
+# O Texto → Malla (triangula los glifos)
+bpy.ops.object.convert(target='MESH')
+
+# Esto permite editar los vértices individuales de cada letra
+# Útil para efectos de "texto destruido" o animaciones de letras
 ```
-Píxel normal:    ████
-Sub-píxel RGB:   R G B | R G B | R G B
-                 ←──────────────────→
-                  Resolución triplicada horizontal
-```
- 
-### Fuentes en la Web
- 
-```css
-/* Definir fuente personalizada */
-@font-face {
-  font-family: 'MiFuente';
-  src: url('fonts/mifuente.woff2') format('woff2'),
-       url('fonts/mifuente.woff')  format('woff');
-  font-weight: 100 900;   /* Variable font */
-  font-style: normal;
-}
- 
-/* Fuente variable con eje de grosor */
-h1 {
-  font-family: 'MiFuente', sans-serif;
-  font-variation-settings: 'wght' 750, 'wdth' 110;
-}
-```
- 
-### Métricas Tipográficas
- 
-Entender las métricas es esencial para el posicionamiento preciso del texto:
- 
-```
-                         ┌── Ascender
-    ▲                    │
-    │    ████████        │ ← Capline (altura de mayúsculas)
-    │    ██  ████        │
-    │    ████████        ← x-height (altura de minúscula x)
-    │    ██              │
-    │    ████████        ▼
-────┤────────────────── Baseline ──
-    │    ██              ▲
-    ▼    ██              └── Descender
-```
- 
-| Métrica    | Descripción                                              |
-|------------|----------------------------------------------------------|
-| Baseline   | Línea base sobre la que "descansan" los caracteres       |
-| Ascender   | Cuánto suben los caracteres sobre la baseline            |
-| Descender  | Cuánto bajan caracteres como 'p', 'q', 'y'              |
-| x-height   | Altura de las minúsculas (medida con la 'x')            |
-| Cap-height | Altura de las mayúsculas                                 |
-| Advance    | Espacio horizontal que ocupa un glifo (incluyendo kern)  |
-| Kerning    | Ajuste de espacio entre pares específicos de letras      |
- 
+
+> 💡 Convertir texto a **Curva** permite ver exactamente las curvas Bézier con las que está construida cada letra, conectando la teoría de la sección 2.3.1 con la tipografía.
+
 ---
- 
+
 ## Referencias
- 
-Aceved, D. (2023). *Fundamentos de computación gráfica: Curvas y superficies*. Universidad Nacional Autónoma de México.
- 
-Barnsley, M. F. (1988). *Fractals everywhere*. Academic Press.
- 
+
 Bézier, P. (1972). *Numerical control: Mathematics and applications* (A. R. Forrest & A. F. Pankhurst, Trads.). John Wiley & Sons. (Obra original publicada en 1970)
- 
+
+Blender Foundation. (2024). *Blender 4.x reference manual: Curves*. https://docs.blender.org/manual/en/latest/modeling/curves/index.html
+
+Blender Foundation. (2024). *Blender 4.x reference manual: Text objects*. https://docs.blender.org/manual/en/latest/modeling/texts/index.html
+
+Blender Foundation. (2024). *Blender Python API documentation*. https://docs.blender.org/api/current/index.html
+
 Foley, J. D., van Dam, A., Feiner, S. K., & Hughes, J. F. (1995). *Computer graphics: Principles and practice* (2.ª ed.). Addison-Wesley.
- 
-Hill, F. S., & Kelley, S. M. (2006). *Computer graphics using OpenGL* (3.ª ed.). Pearson Prentice Hall.
- 
+
+Hess, R. (2010). *The essential Blender: Guide to 3D creation with the open source suite Blender*. No Starch Press.
+
 Mandelbrot, B. B. (1982). *The fractal geometry of nature*. W. H. Freeman and Company.
- 
-OpenType specification. (2023). *OpenType 1.9 specification*. Microsoft Corporation. https://docs.microsoft.com/en-us/typography/opentype/spec/
- 
+
 Piegl, L., & Tiller, W. (1997). *The NURBS book* (2.ª ed.). Springer-Verlag. https://doi.org/10.1007/978-3-642-59223-2
- 
+
 Shirley, P., & Marschner, S. (2009). *Fundamentals of computer graphics* (3.ª ed.). A K Peters/CRC Press.
- 
-Shoemake, K. (1985). Animating rotation with quaternion curves. *ACM SIGGRAPH Computer Graphics, 19*(3), 245–254. https://doi.org/10.1145/325165.325242
- 
-Shreiner, D., Sellers, G., Kessenich, J., & Licea-Kane, B. (2013). *OpenGL programming guide: The official guide to learning OpenGL* (8.ª ed.). Addison-Wesley.
- 
-The Processing Foundation. (2023). *p5.js reference*. https://p5js.org/reference/
- 
+
+Van Gumster, J. (2020). *Blender for dummies* (4.ª ed.). John Wiley & Sons.
+
 ---
- 
+
 <div align="center">
- 
-**Unidad 2 — Graficación 2D** | Materia: Graficación por Computadora
- 
+
+**Unidad 2 — Graficación 2D** | Materia: Graficación por Computadora | Herramienta: Blender
+
 *Elaborado con fines académicos*
- 
+
 </div>
